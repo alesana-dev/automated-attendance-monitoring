@@ -11,7 +11,7 @@
 
 ---
 
-# 📖 Project Overview
+# 📖 Capstone Project Overview
 
 The **Smart Attendance Monitoring System** is an undergraduate capstone project designed to improve the security and efficiency of attendance monitoring in educational institutions.
 

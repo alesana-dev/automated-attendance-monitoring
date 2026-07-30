@@ -392,7 +392,11 @@ This project was developed as an undergraduate **Capstone Project** for educatio
 
 # 👤 Author
 
-**Anjo Hechanova**
+**Anjo Olorosisimo**
+**Ivan Marasigan**
+**Nickson Salvador**
+**Maria Kristina Magalang**
+**Winnie Distor**
 
 Bachelor of Science in Information Technology (BSIT)
 

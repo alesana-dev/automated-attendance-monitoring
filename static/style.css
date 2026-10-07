@@ -1,0 +1,36 @@
+body {
+    background: #f8f9fa;
+    background-image: url("/static/PTClogo.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: 480px 480px; /* adjust as you like */
+}
+
+/* Overlay to make the content readable (optional) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(255,255,255,0.3); /* Lighter overlay so logo is visible */
+    z-index: 0;
+    pointer-events: none;
+}
+
+.container, nav, .navbar {
+    position: relative;
+    z-index: 1;
+}
+
+form label, .form-label, th, td, .btn, h2, h3, h4, h5 {
+    font-weight: bold !important;
+}
+
+.card {
+    background: rgba(255,255,255,0.96);
+    border-radius: 10px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 24px;
+    margin-bottom: 24px;
+}

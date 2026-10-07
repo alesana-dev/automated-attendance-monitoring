@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Manage Subjects{% endblock %}
+{% block content %}
+<h2 class="mb-4">Subject Management</h2>
+
+<form method="POST" class="mb-3 d-flex gap-2 align-items-center">
+    <input type="text" name="name" class="form-control" placeholder="New Subject Name" required>
+    <select name="professor_id" required class="form-select">
+        <option value="">-- Select Professor --</option>
+        {% for p in professors %}
+            <option value="{{ p.id }}">
+                {{ p.last_name }}, {{ p.first_name }}{% if p.middle_name %} {{ p.middle_name }}{% endif %}{% if p.suffix %} {{ p.suffix }}{% endif %}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn btn-primary">Add Subject</button>
+</form>
+
+{% if subjects %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Subject</th>
+            <th>Professor</th>
+            <th style="width: 120px;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for subject in subjects %}
+        <tr>
+            <td>{{ subject.name }}</td>
+            <td>
+                {% if subject.professor_obj %}
+                    {{ subject.professor_obj.last_name }}, {{ subject.professor_obj.first_name }}{% if subject.professor_obj.middle_name %} {{ subject.professor_obj.middle_name }}{% endif %}{% if subject.professor_obj.suffix %} {{ subject.professor_obj.suffix }}{% endif %}
+                {% else %}
+                    <span class="text-danger">No Professor Assigned</span>
+                {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="{{ url_for('routes.admin_delete_subject', subject_id=subject.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete subject?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No subjects found.</div>
+{% endif %}
+{% endblock %}

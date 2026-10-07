@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Professor Registration{% endblock %}
+{% block content %}
+<style>
+  .form-section-title { font-weight: 600; font-size: 1.15rem; color: #357a38; margin-bottom: 8px; margin-top: 24px;}
+  .card { border-radius: 14px;}
+  .form-label { font-weight: 500;}
+</style>
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+    <div class="card shadow-sm p-4 mt-4">
+      <h3 class="mb-1 text-center" style="color: #357a38;">Professor Registration</h3>
+      <p class="mb-4 text-center text-muted">Fill in all the details completely. Fields marked with * are required.</p>
+
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li><b>{{ field.label.text }}:</b> {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('routes.register_professor') }}" id="registerProfessorForm">
+        {{ form.hidden_tag() }}
+        <div class="form-section-title">Account Info</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">{{ form.username.label(class="form-label") }}{{ form.username(class="form-control") }}</div>
+          <div class="col-md-6 mb-3">{{ form.email.label(class="form-label") }}{{ form.email(class="form-control") }}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">{{ form.password.label(class="form-label") }}{{ form.password(class="form-control") }}</div>
+          <div class="col-md-6 mb-3">{{ form.confirm_password.label(class="form-label") }}{{ form.confirm_password(class="form-control") }}</div>
+        </div>
+        <div class="form-section-title">Personal Details</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">{{ form.last_name.label(class="form-label") }}{{ form.last_name(class="form-control") }}</div>
+          <div class="col-md-6 mb-3">{{ form.first_name.label(class="form-label") }}{{ form.first_name(class="form-control") }}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">{{ form.middle_name.label(class="form-label") }}{{ form.middle_name(class="form-control") }}</div>
+          <div class="col-md-6 mb-3">{{ form.suffix.label(class="form-label") }}{{ form.suffix(class="form-control") }}</div>
+        </div>
+
+        <!-- DATA PRIVACY ACT CONSENT -->
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="consentCheckbox" name="consent" required>
+            <label class="form-check-label" for="consentCheckbox">
+              Sumasang-ayon ako sa <a href="#" id="privacyLink">Data Privacy Act</a> at paggamit ng aking impormasyon.
+            </label>
+          </div>
+          {% for error in form.consent.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="d-grid mt-4">{{ form.submit(class="btn btn-success btn-lg") }}</div>
+      </form>
+      <hr>
+      <div class="text-center">
+        <span>Already have an account? </span>
+        <a href="{{ url_for('routes.login') }}">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Show Data Privacy Act text in alert on click
+  document.getElementById('privacyLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    alert(
+      "DATA PRIVACY ACT OF 2012 (RA 10173)\n\n" +
+      "Sa pagpapatuloy ng registration, sumasang-ayon ka sa pagkuha at paggamit ng iyong personal na impormasyon " +
+      "(pangalan, ID number, larawan, attendance, atbp.) para sa layunin ng Smart Attendance System.\n\n" +
+      "Alinsunod sa Data Privacy Act of 2012 (RA 10173), ang iyong data ay ligtas naming itatago at hindi ibabahagi " +
+      "sa iba maliban kung kinakailangan ayon sa batas o sa iyong pahintulot.\n\n" +
+      "Para sa mga tanong o concern, makipag-ugnayan sa amin sa [school email/contact]."
+    );
+  });
+
+  // Prevent submit if not agreed (for extra safety, HTML5 required already handles it)
+  document.getElementById('registerProfessorForm').onsubmit = function(e) {
+    if (!document.getElementById('consentCheckbox').checked) {
+      alert('Kailangan mong sumang-ayon sa Data Privacy Act bago magregister.');
+      e.preventDefault();
+      return false;
+    }
+  };
+});
+</script>
+{% endblock %}

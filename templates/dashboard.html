@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<style>
+    .dashboard-card {
+        border-radius: 18px;
+        box-shadow: 0 0 18px rgba(100, 140, 90, 0.07);
+        background: #fff;
+        transition: transform 0.11s;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-4px) scale(1.025);
+        box-shadow: 0 2px 24px #b5ffcb50;
+    }
+    .dashboard-icon {
+        font-size: 2.3rem;
+        margin-bottom: 8px;
+        color: #357a38;
+    }
+    .dashboard-btn {
+        min-height: 100px;
+        font-size: 1.09rem;
+        font-weight: 500;
+    }
+    @media (max-width: 767px) {
+        .dashboard-icon { font-size: 2rem; }
+        .dashboard-btn { min-height: 80px; font-size: 1rem;}
+    }
+</style>
+<div class="d-flex justify-content-end">
+    <a href="{{ url_for('routes.logout') }}" class="btn btn-danger mb-2 mt-2 px-4">Logout</a>
+</div>
+<div class="container">
+    <div class="text-center w-100" style="max-width: 700px; margin:auto;">
+        <h2 class="mb-4 fw-bold">
+            Welcome, Admin {{ current_user.username }}!
+        </h2>
+        <div class="row g-3 justify-content-center mb-4">
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.register_student') }}" class="dashboard-card dashboard-btn btn btn-primary w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-person-plus-fill dashboard-icon"></i>
+                    Register as Student
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.register_professor') }}" class="dashboard-card dashboard-btn btn btn-secondary w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-person-plus dashboard-icon"></i>
+                    Register as Professor
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.admin_panel') }}" class="dashboard-card dashboard-btn btn btn-info text-white w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-people-fill dashboard-icon"></i>
+                    Manage Students
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.admin_subjects') }}" class="dashboard-card dashboard-btn btn btn-warning text-dark w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-journal-bookmark-fill dashboard-icon"></i>
+                    Manage Subjects
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.attendance_panel') }}" class="dashboard-card dashboard-btn btn btn-success w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-list-check dashboard-icon"></i>
+                    View Attendance
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.attendance_analytics') }}" class="dashboard-card dashboard-btn btn btn-danger w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-bar-chart-fill dashboard-icon"></i>
+                    Analytics
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <a href="{{ url_for('routes.kiosk') }}" class="dashboard-card dashboard-btn btn btn-secondary w-100 py-4 d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-door-open-fill dashboard-icon"></i>
+                    Kiosk Mode
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

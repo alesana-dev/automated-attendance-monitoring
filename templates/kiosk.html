@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Attendance Kiosk{% endblock %}
+{% block content %}
+<h4 class="mb-4 text-center">Attendance Kiosk</h4>
+<div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 80vh;">
+  <div id="status" class="alert alert-info w-100 text-center mb-3">Waiting for RFID...</div>
+  <div class="row w-80 mb-3 justify-content-center">
+    <div class="col-md-4 mb-2">
+      <select id="professor_id" name="professor_id" class="form-select">
+        <option value="">Select Professor</option>
+        {% for p in professors %}
+            <option value="{{ p.id }}">
+                {{ p.last_name }}, {{ p.first_name }}{% if p.middle_name %} {{ p.middle_name }}{% endif %}{% if p.suffix %} {{ p.suffix }}{% endif %}
+            </option>
+        {% endfor %}
+    </select>
+    </div>
+    <div class="col-md-4 mb-2">
+      <select id="subject_id" name="subject_id" class="form-select">
+        <option value="">Select Subject</option>
+        {% for s in subjects %}
+            <option value="{{ s.id }}">{{ s.name }}</option>
+        {% endfor %}
+    </select>
+    </div>
+     <div class="col-md-4 mb-2">
+        <select id="start_time" name="start_time" class="form-select" required>
+            <option value="">Select Subject Start Time</option>
+            <option value="07:00:00">07:00 AM</option>
+            <option value="08:00:00">08:00 AM</option>
+            <option value="09:00:00">09:00 AM</option>
+            <option value="10:00:00">10:00 AM</option>
+            <option value="11:00:00">11:00 AM</option>
+            <option value="12:00:00">12:00 NN</option>
+            <option value="13:00:00">01:00 PM</option>
+            <option value="14:00:00">02:00 PM</option>
+            <option value="15:00:00">03:00 PM</option>
+            <option value="16:00:00">04:00 PM</option>
+            <option value="17:00:00">05:00 PM</option>
+            <option value="18:00:00">06:00 PM</option>
+            <option value="19:00:00">07:00 PM</option>
+            <option value="20:00:00">08:00 PM</option>
+            <option value="21:00:00">09:00 PM</option>
+        </select>
+  </div>
+
+  </div>
+
+  <video id="video" width="480" height="360" autoplay style="border:2px solid #333; border-radius: 12px; display: block; margin: 0 auto; background: #222;"></video>
+  <canvas id="canvas1" width="480" height="360" style="display:none;"></canvas>
+  <canvas id="canvas2" width="480" height="360" style="display:none;"></canvas>
+  <input type="hidden" id="rfid_tag">
+</div>
+<script>
+const video = document.getElementById('video');
+const canvas1 = document.getElementById('canvas1');
+const canvas2 = document.getElementById('canvas2');
+const statusDiv = document.getElementById('status');
+const rfidTag = document.getElementById('rfid_tag');
+const professorSelect = document.getElementById('professor_id');
+const subjectSelect = document.getElementById('subject_id');
+const startTimeSelect = document.getElementById('start_time');
+
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => { video.srcObject = stream; })
+    .catch(err => { statusDiv.innerText = "Webcam error: " + err; });
+
+window.onload = () => { window.focus(); };
+
+let inputBuffer = "";
+document.addEventListener('keydown', function(e) {
+    if (e.key === "Enter") {
+        if (inputBuffer.length > 0) {
+            rfidTag.value = inputBuffer.trim();
+            startLivenessCapture();
+            inputBuffer = "";
+        }
+    } else {
+        inputBuffer += e.key;
+    }
+});
+
+function startLivenessCapture() {
+    statusDiv.className = "alert alert-warning w-100 text-center";
+    statusDiv.innerText = "RFID detected! Please BLINK for the camera...";
+    setTimeout(() => {
+        canvas1.getContext('2d').drawImage(video, 0, 0, canvas1.width, canvas1.height);
+        statusDiv.innerText = "Now BLINK!";
+        setTimeout(() => {
+            canvas2.getContext('2d').drawImage(video, 0, 0, canvas2.width, canvas2.height);
+            statusDiv.innerText = "Processing face and liveness, please wait...";
+            processAttendance();
+        }, 1500);
+    }, 1200);
+}
+
+function processAttendance() {
+    const faceImage1 = canvas1.toDataURL('image/jpeg');
+    const faceImage2 = canvas2.toDataURL('image/jpeg');
+    const professor_id = professorSelect.value;
+    const subject_id = subjectSelect.value;
+    const start_time = startTimeSelect.value;
+    
+    if (!professor_id || !subject_id || !start_time) {
+        statusDiv.className = "alert alert-danger w-100 text-center";
+        statusDiv.innerText = "Please select a professor, subject, and start time.";
+        setTimeout(resetKiosk, 2000);
+        return;
+    }
+
+    fetch("/api/attendance_tap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            rfid_tag: rfidTag.value,
+            subject_id: parseInt(subject_id),
+            professor_id: parseInt(professor_id),
+             start_time: start_time,
+            face_image1: faceImage1,
+            face_image2: faceImage2
+        })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            statusDiv.className = "alert alert-success w-100 text-center";
+            statusDiv.innerText = res.message;
+        } else {
+            statusDiv.className = "alert alert-danger w-100 text-center";
+            statusDiv.innerText = "Error: " + res.message;
+        }
+        setTimeout(resetKiosk, 2000);
+    })
+    .catch(err => {
+        statusDiv.className = "alert alert-danger w-100 text-center";
+        statusDiv.innerText = "Network/API error: " + err;
+        setTimeout(resetKiosk, 3000);
+    });
+}
+
+function resetKiosk() {
+    statusDiv.className = "alert alert-info w-100 text-center";
+    statusDiv.innerText = "Waiting for RFID...";
+    rfidTag.value = "";
+    inputBuffer = "";
+    
+}
+</script>
+
+{% endblock %}

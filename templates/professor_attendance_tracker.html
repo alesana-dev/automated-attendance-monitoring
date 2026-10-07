@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Attendance Tracker{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ subject.name }} - Attendance Tracker</h2>
+        <a href="{{ url_for('routes.professor_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Student</th>
+                    {% for d in dates %}
+                        <th>{{ d.strftime('%b %d') }}</th>
+                    {% endfor %}
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ s.last_name }}, {{ s.first_name }}</td>
+                    {% set present_count = 0 %}
+                    {% for d in dates %}
+                        {% set status = attendance_map[s.id][d] %}
+                        <td>
+                            {% if status == "Present" %}
+                                <span class="badge bg-success">P</span>
+                                {% set present_count = present_count + 1 %}
+                            {% elif status == "Late" %}
+                                <span class="badge bg-warning text-dark">L</span>
+                            {% elif status == "Excused" %}
+                                <span class="badge bg-info text-dark">E</span>
+                            {% else %}
+                                <span class="badge bg-danger">A</span>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                    <td>
+                        {% if dates|length > 0 %}
+                            {{ (present_count / dates|length * 100)|round(1) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

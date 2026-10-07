@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Attendance Analytics{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h4 class="mb-4 text-center">Attendance Analytics</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const statusLabels = {{ status_labels|tojson }};
+const statusValues = {{ status_values|tojson }};
+
+// Pie Chart
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: statusLabels,
+        datasets: [{
+            data: statusValues,
+            backgroundColor: [
+                "#42A5F5","#66BB6A","#FFA726","#EF5350","#AB47BC"
+            ]
+        }]
+    },
+    options: { responsive: true }
+});
+
+// Bar Chart
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: statusLabels,
+        datasets: [{
+            label: 'Attendance Count',
+            data: statusValues,
+            backgroundColor: [
+                "#42A5F5","#66BB6A","#FFA726","#EF5350","#AB47BC"
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Professor Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="{{ url_for('routes.logout') }}" class="btn btn-danger">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>
+</div>
+
+<div class="container">
+  <h2 class="mb-4">Welcome, Prof. {{ display_name }}!</h2>
+
+  <!-- SUBJECT FILTER -->
+  <form method="GET" class="row g-3 mb-4">
+    <div class="col-md-6">
+      <label for="subject" class="form-label fw-bold">Select Subject</label>
+      <select id="subject" name="subject_id" class="form-select" onchange="this.form.submit()">
+        <option value="">-- Choose Subject --</option>
+        {% for subj in subjects %}
+        <option value="{{ subj.id }}" {% if subj.id|string == selected_subject_id %}selected{% endif %}>
+          {{ subj.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  {% if selected_subject %}
+  <!-- SEND EMAIL REPORT FORM -->
+  <form method="POST" class="row g-2 mb-3 align-items-end" autocomplete="off">
+    <input type="hidden" name="send_report" value="1">
+    <div class="col-auto">
+      <label for="email" class="form-label fw-bold">Send Attendance Report To</label>
+      <input type="email" name="email" class="form-control" placeholder="prof@email.com" required>
+    </div>
+    <div class="col-auto">
+      <label for="start_date" class="form-label">From</label>
+      <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+    </div>
+    <div class="col-auto">
+      <label for="end_date" class="form-label">To</label>
+      <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+    </div>
+    <div class="col-auto pt-2">
+      <button type="submit" class="btn btn-success mt-2">
+        <i class="bi bi-envelope"></i> Send Email Report
+      </button>
+    </div>
+    <!-- Optional: Download CSV Button -->
+    <div class="col-auto pt-2">
+      <a href="{{ url_for('routes.download_attendance_csv', subject_id=selected_subject.id, start_date=start_date, end_date=end_date) }}"
+         class="btn btn-outline-primary mt-2">
+        <i class="bi bi-download"></i> Download CSV
+      </a>
+    </div>
+  </form>
+
+  <!-- SUMMARY PANEL -->
+  <div class="mb-3">
+    <strong>Attendance Percentage:</strong>
+    <span class="fs-5 text-success">{{ percentage|round(1) }}%</span>
+  </div>
+  <div class="mb-3">
+    <strong>Summary:</strong>
+    <span class="badge bg-success">Present: {{ attendance_summary.present }}</span>
+    <span class="badge bg-secondary">Logged Out: {{ attendance_summary.logged_out }}</span>
+    <span class="badge bg-warning text-dark">Late: {{ attendance_summary.late }}</span>
+    <span class="badge bg-info text-dark">Excused: {{ attendance_summary.excused }}</span>
+    <span class="badge bg-danger">Absent: {{ attendance_summary.absent }}</span>
+    <span class="badge bg-dark">Total: {{ attendance_summary.total }}</span>
+  </div>
+
+  <!-- ATTENDANCE TABLE -->
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-success">
+        <tr>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.student.student_id if r.student else '--' }}</td>
+          <td>
+            {% if r.student %}
+              {{ r.student.last_name }}, {{ r.student.first_name }}
+            {% else %}
+              <span class="text-danger">Missing Student</span>
+            {% endif %}
+          </td>
+          <td>{{ r.timestamp.strftime('%Y-%m-%d') }}</td>
+          <td>{{ r.timestamp.strftime('%I:%M %p') }}</td>
+          <td>
+            {% if r.status == "Present" %}
+              <span class="badge bg-success">Present</span>
+            {% elif r.status == "Late" %}
+              <span class="badge bg-warning text-dark">Late</span>
+            {% elif r.status == "Excused" %}
+              <span class="badge bg-info text-dark">Excused</span>
+            {% elif r.status == "Logged Out" %}
+              <span class="badge bg-secondary">Logged Out</span>
+            {% elif r.status == "Absent" %}
+              <span class="badge bg-danger">Absent</span>
+            {% else %}
+              <span class="badge bg-dark">{{ r.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.student %}
+            <a href="{{ url_for('routes.edit_attendance', attendance_id=r.id, subject_id=selected_subject.id) }}"
+               class="btn btn-sm btn-primary">Edit</a>
+            {% else %}
+            <span class="text-muted">N/A</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center">No records for this subject.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">Please select a subject to view attendance.</div>
+  {% endif %}
+</div>
+{% endblock %}

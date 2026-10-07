@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Edit Student{% endblock %}
+{% block content %}
+<h2 class="mb-4">Edit Student</h2>
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.student_id.label }}</label>
+        {{ form.student_id(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.rfid_tag.label }}</label>
+        {{ form.rfid_tag(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.last_name.label }}</label>
+        {{ form.last_name(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.first_name.label }}</label>
+        {{ form.first_name(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.middle_name.label }}</label>
+        {{ form.middle_name(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.suffix.label }}</label>
+        {{ form.suffix(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.parent_contact.label }}</label>
+        {{ form.parent_contact(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">{{ form.enrollment_status.label }}</label>
+        {{ form.enrollment_status(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Update Face Photo (optional)</label><br>
+        <video id="camera" width="320" height="240" autoplay style="border-radius: 8px; border:1px solid #888; display: block; margin-bottom: 10px;"></video>
+        <button type="button" class="btn btn-success mb-2" id="capture">Capture Photo</button>
+        <div>
+            <img id="captured" src="" alt="Captured Face" width="160" style="display:none; border-radius:8px;">
+        </div>
+        <input type="hidden" id="face_image" name="face_image" value="">
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+<script>
+    // Camera logic
+    const video = document.getElementById('camera');
+    const captureBtn = document.getElementById('capture');
+    const capturedImg = document.getElementById('captured');
+    const faceInput = document.getElementById('face_image');
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; });
+    }
+    captureBtn.onclick = function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 320;
+        canvas.height = video.videoHeight || 240;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL('image/jpeg');
+        capturedImg.src = dataURL;
+        capturedImg.style.display = 'block';
+        faceInput.value = dataURL;
+    };
+</script>
+{% endblock %}

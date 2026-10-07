@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Login | Smart Attendance System{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm p-4 mt-4">
+            <h3 class="mb-4 text-center" style="color:#357a38;">Sign In</h3>
+            <form method="POST" action="{{ url_for('routes.login') }}">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-control", placeholder="Enter your username") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control", placeholder="Enter your password") }}
+                </div>
+                <div class="d-grid mb-2">
+                    {{ form.submit(class="btn btn-success btn-lg") }}
+                </div>
+            </form>
+            <hr>
+            <div class="text-center mb-2">Don't have an account? Contact Admin</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

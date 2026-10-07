@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}My Attendance{% endblock %}
+
+{% block content %}
+<style>
+  .attendance-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 0 12px #b7ffd840;
+    padding: 2.3rem 2.2rem;
+    max-width: 900px;
+    margin: 30px auto 0 auto;
+  }
+  .attendance-header {
+    color: #357a38;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .attendance-percentage {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #27943c;
+  }
+  .filter-label { font-weight: 500; }
+  .badge { font-size: 1rem; padding: 0.45em 1.2em;}
+  .logout-btn { min-width: 110px;}
+  @media (max-width: 767px) {
+    .attendance-card { padding: 1rem 0.5rem; }
+    .attendance-header { font-size: 1.2rem; }
+    .attendance-percentage { font-size: 1.25rem; }
+  }
+</style>
+
+<div class="attendance-card">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="attendance-header mb-1" style="font-size:2rem;">My Attendance</h2>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <span class="badge bg-success rounded-circle" style="font-size:1.3em; padding:.7em .86em;">
+        <i class="bi bi-person-circle"></i>
+      </span>
+      <span style="
+          font-size: 1.13rem;
+          font-weight: 600;
+          letter-spacing: .2px;
+          color: #235425;
+          background:rgba(208,255,215,0.70);
+          border-radius: 8px;
+          padding: 6px 16px;
+          box-shadow: 0 1px 6px #a4ffbc22;
+          ">
+        {{ student.last_name|title }}, {{ student.first_name|title }}{% if student.middle_name %} {{ student.middle_name[0]|upper }}.{% endif %}
+      </span>
+    </div>
+    <span class="text-muted" style="font-size: .97em; margin-left: 52px;">
+      Student ID: <b>{{ student.student_id }}</b>
+    </span>
+  </div>
+  <a href="{{ url_for('routes.logout') }}" class="btn btn-danger logout-btn">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>
+</div>
+
+
+  <!-- Subject Filter -->
+  <form method="GET" class="row g-3 mb-4">
+    <div class="col-md-5 col-12">
+      <label for="subject" class="form-label filter-label">Filter by Subject</label>
+      <select id="subject" name="subject_id" class="form-select"
+              onchange="this.form.submit()">
+        <option value="">All Subjects</option>
+        {% for subj in subjects %}
+          <option value="{{ subj.id }}"
+            {% if subj.id|string == selected_subject_id %}selected{% endif %}>
+            {{ subj.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col d-flex align-items-end justify-content-end">
+      <div>
+        <span class="filter-label">Attendance Percentage:</span>
+        <span class="attendance-percentage ms-2">{{ percentage|round(1) }}%</span>
+      </div>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle text-center mb-0">
+      <thead class="table-success">
+        <tr>
+          <th style="width:20%;">Date</th>
+          <th style="width:25%;">Login Time</th>
+          <th style="width:25%;">Logout Time</th>
+          <th style="width:15%;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr>
+          <td>
+            {{ record.date.strftime("%b %d, %Y") if record.date else '' }}
+          </td>
+          <td>
+            {{ record.login.strftime("%I:%M %p") if record.login else '-' }}
+          </td>
+          <td>
+            {{ record.logout.strftime("%I:%M %p") if record.logout else '-' }}
+          </td>
+          <td>
+            {% if record.status == "Present" %}
+              <span class="badge bg-success">Present</span>
+            {% elif record.status == "Late" %}
+              <span class="badge bg-warning text-dark">Late</span>
+            {% elif record.status == "Excused" %}
+              <span class="badge bg-info text-dark">Excused</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ record.status or 'N/A' }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-3">No attendance records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
